@@ -1,6 +1,5 @@
 import 'package:eco_light/components/home_page_components/home_action_button.dart';
 import 'package:eco_light/constants/constants.dart';
-import 'package:eco_light/screens/main_light_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 
