@@ -1,7 +1,10 @@
+import 'package:eco_light/components/home_page_components/custom_color_set.dart';
 import 'package:eco_light/components/home_page_components/home_action_button.dart';
 import 'package:eco_light/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:eco_light/services/ad_helper.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class EcolightApp extends StatefulWidget {
   const EcolightApp({Key? key}) : super(key: key);
@@ -11,6 +14,8 @@ class EcolightApp extends StatefulWidget {
 }
 
 class _EcolightAppState extends State<EcolightApp> {
+  BannerAd? _bannerAd;
+
   bool activeLight = true, customLight = false;
 
   /*----- Crotol lamp power ------*/
@@ -45,7 +50,6 @@ class _EcolightAppState extends State<EcolightApp> {
 
   customLightProcess() {
     if (customLight) {
-     
       showCustomSetColor();
     } else {
       setState(() {
@@ -207,7 +211,6 @@ class _EcolightAppState extends State<EcolightApp> {
       mainLightIconColor = kActiveIconColor;
       customLightIconColor = kInactiveIconColor;
     });
-   
   }
 
   void customLightBtnProcess() {
@@ -215,7 +218,7 @@ class _EcolightAppState extends State<EcolightApp> {
     activeLight = false;
     setState(() {
       btnLightFillColor = kBtnInactiveColor;
-   
+
       btnLightBorderColor = kBorderInactiveBntColor;
       btnCustomLightFillColor = kBntActiveColor;
       btnCustomLightBorderColor = kSplashScreenBg;
@@ -224,7 +227,6 @@ class _EcolightAppState extends State<EcolightApp> {
       mainLightIconColor = kInactiveIconColor;
       customLightIconColor = kActiveIconColor;
     });
-
   }
 
   void customColorCheck() {
@@ -342,7 +344,7 @@ class _EcolightAppState extends State<EcolightApp> {
         luminosityActiveColor = kActiveSliderBlackColor;
         luminosityInactiveColor = kInactiveSliderBlackColor;
         luminosityThumOverlayColor = kOverlayThumBlackColor;
-         powerImg = AssetImage('assets/images/home_button.png');
+        powerImg = AssetImage('assets/images/home_button.png');
         logoImg = AssetImage('assets/images/logo_black.png');
       });
     } else {
@@ -378,6 +380,26 @@ class _EcolightAppState extends State<EcolightApp> {
         customColorCheckPowerOff();
       });
     }
+  }
+
+  @override
+  void initState() {
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
   }
 
   @override
@@ -468,11 +490,8 @@ class _EcolightAppState extends State<EcolightApp> {
                 child: GestureDetector(
                   onTap: () {
                     if (activeLight) {
-                     
-                     
                       mainLightPowerHandle();
                     } else {
-                   
                       customLightPowerHandle();
                     }
                   },
@@ -485,7 +504,16 @@ class _EcolightAppState extends State<EcolightApp> {
               ),
               Image(
                 image: logoImg,
-              )
+              ),
+              if (_bannerAd != null)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
+                ),
             ],
           ),
         ),
@@ -502,28 +530,4 @@ class _EcolightAppState extends State<EcolightApp> {
   }
 }
 
-class CustomColorSet extends StatelessWidget {
-  CustomColorSet(
-      {required this.onPressed,
-      required this.selectedColorSet,
-      required this.customLightColor});
-  final VoidCallback onPressed;
-  Color selectedColorSet, customLightColor;
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: RawMaterialButton(
-        onPressed: onPressed,
-        shape: CircleBorder(
-          side: BorderSide(width: 6.0, color: selectedColorSet),
-        ),
-        fillColor: customLightColor,
-        child: Padding(
-          padding: const EdgeInsets.all(28.0),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 0),
-        constraints: BoxConstraints(minWidth: 56.0),
-      ),
-    );
-  }
-}
+
