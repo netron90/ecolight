@@ -14,7 +14,7 @@ void main() {
   ]).then(
     (value) => runApp( MaterialApp(
         title: kAppName,
-        home: SplashScreen(),
+        home: SplashScreen( ),
       ),
     ),
   );
