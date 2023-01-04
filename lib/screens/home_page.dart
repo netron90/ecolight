@@ -3,8 +3,6 @@ import 'package:eco_light/components/home_page_components/home_action_button.dar
 import 'package:eco_light/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import 'package:eco_light/services/ad_helper.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class EcolightApp extends StatefulWidget {
   const EcolightApp({Key? key}) : super(key: key);
@@ -14,8 +12,6 @@ class EcolightApp extends StatefulWidget {
 }
 
 class _EcolightAppState extends State<EcolightApp> {
-  BannerAd? _bannerAd;
-
   bool activeLight = true, customLight = false;
 
   /*----- Crotol lamp power ------*/
@@ -383,26 +379,6 @@ class _EcolightAppState extends State<EcolightApp> {
   }
 
   @override
-  void initState() {
-    BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      request: AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            _bannerAd = ad as BannerAd;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
-          ad.dispose();
-        },
-      ),
-    ).load();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -505,15 +481,6 @@ class _EcolightAppState extends State<EcolightApp> {
               Image(
                 image: logoImg,
               ),
-              if (_bannerAd != null)
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    width: _bannerAd!.size.width.toDouble(),
-                    height: _bannerAd!.size.height.toDouble(),
-                    child: AdWidget(ad: _bannerAd!),
-                  ),
-                ),
             ],
           ),
         ),
@@ -529,5 +496,3 @@ class _EcolightAppState extends State<EcolightApp> {
     }
   }
 }
-
-

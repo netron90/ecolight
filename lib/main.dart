@@ -6,8 +6,6 @@ import 'constants/constants.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // MobileAds.instance.initialize();
-  _initGoogleMobileAds();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -20,7 +18,3 @@ void main() {
   );
 }
 
-Future<InitializationStatus> _initGoogleMobileAds() {
-  // TODO: Initialize Google Mobile Ads SDK
-  return MobileAds.instance.initialize();
-}
