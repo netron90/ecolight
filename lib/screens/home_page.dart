@@ -15,6 +15,7 @@ class EcolightApp extends StatefulWidget {
 
 class _EcolightAppState extends State<EcolightApp> {
   BannerAd? _bannerAd;
+  InterstitialAd? _interstitialAd;
 
   bool activeLight = true, customLight = false;
 
@@ -48,6 +49,8 @@ class _EcolightAppState extends State<EcolightApp> {
 
   ColorType defaultCustomColor = ColorType.orange;
 
+
+/* -------- APP METHODS --------- */
   customLightProcess() {
     if (customLight) {
       showCustomSetColor();
@@ -382,6 +385,40 @@ class _EcolightAppState extends State<EcolightApp> {
     }
   }
 
+ void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+
+              _interstitialAd?.dispose();
+
+            },
+          );
+
+          setState(() {
+            _interstitialAd = ad;
+          });
+          if (_interstitialAd != null) 
+          {
+                _interstitialAd?.show();
+              } else {
+                 _interstitialAd?.dispose();
+                // Navigator.pop(context);
+              }
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
+
+/* -------- APP METHODS END --------- */
+
   @override
   void initState() {
     BannerAd(
@@ -401,6 +438,8 @@ class _EcolightAppState extends State<EcolightApp> {
       ),
     ).load();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -519,7 +558,21 @@ class _EcolightAppState extends State<EcolightApp> {
         ),
       ),
     );
+    
   }
+
+  @override
+  void dispose() {
+     _bannerAd?.dispose();
+      _loadInterstitialAd();
+
+
+   
+
+    // TODO: implement dispose
+    super.dispose();
+  }
+
 
   Color checkSelectedColorSet(Color actualCustomLight, Color colorInRow) {
     if (actualCustomLight == colorInRow) {
@@ -529,5 +582,7 @@ class _EcolightAppState extends State<EcolightApp> {
     }
   }
 }
+
+
 
 
