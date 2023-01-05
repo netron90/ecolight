@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:eco_light/services/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:wakelock/wakelock.dart';
 
 class EcolightApp extends StatefulWidget {
   const EcolightApp({Key? key}) : super(key: key);
@@ -339,6 +340,7 @@ class _EcolightAppState extends State<EcolightApp> {
 
   void mainLightPowerHandle() {
     if (!powerState) {
+      Wakelock.enable();
       powerState = true;
       setState(() {
         luminosityState = true;
@@ -351,6 +353,7 @@ class _EcolightAppState extends State<EcolightApp> {
         logoImg = AssetImage('assets/images/logo_black.png');
       });
     } else {
+      Wakelock.disable();
       powerState = false;
       setState(() {
         luminosityState = false;
@@ -364,6 +367,7 @@ class _EcolightAppState extends State<EcolightApp> {
 
   void customLightPowerHandle() {
     if (!powerState) {
+      Wakelock.enable();
       powerState = true;
       setState(() {
         luminosityState = true;
@@ -375,6 +379,7 @@ class _EcolightAppState extends State<EcolightApp> {
         customColorCheckPower();
       });
     } else {
+      Wakelock.disable();
       powerState = false;
       setState(() {
         luminosityState = false;
