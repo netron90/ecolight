@@ -50,7 +50,6 @@ class _EcolightAppState extends State<EcolightApp> {
 
   ColorType defaultCustomColor = ColorType.orange;
 
-
 /* -------- APP METHODS --------- */
   customLightProcess() {
     if (customLight) {
@@ -390,7 +389,7 @@ class _EcolightAppState extends State<EcolightApp> {
     }
   }
 
- void _loadInterstitialAd() {
+  void _loadInterstitialAd() {
     InterstitialAd.load(
       adUnitId: AdHelper.interstitialAdUnitId,
       request: AdRequest(),
@@ -398,22 +397,20 @@ class _EcolightAppState extends State<EcolightApp> {
         onAdLoaded: (ad) {
           ad.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (ad) {
-
               _interstitialAd?.dispose();
-
+              // Navigator.pop(context);
             },
           );
 
           setState(() {
             _interstitialAd = ad;
           });
-          if (_interstitialAd != null) 
-          {
-                _interstitialAd?.show();
-              } else {
-                 _interstitialAd?.dispose();
-                // Navigator.pop(context);
-              }
+          // if (_interstitialAd != null) {
+          //   _interstitialAd?.show();
+          // } else {
+          //   _interstitialAd?.dispose();
+          //   // Navigator.pop(context);
+          // }
         },
         onAdFailedToLoad: (err) {
           print('Failed to load an interstitial ad: ${err.message}');
@@ -426,6 +423,8 @@ class _EcolightAppState extends State<EcolightApp> {
 
   @override
   void initState() {
+    print('AdBanner Load');
+
     BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: AdRequest(),
@@ -442,142 +441,152 @@ class _EcolightAppState extends State<EcolightApp> {
         },
       ),
     ).load();
+    print('AdBanner Load End');
+
+    print('load interticial');
+    _loadInterstitialAd();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: screenLight,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Visibility(
-                visible: luminosityState,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.brightness_high,
-                      color: luminosityActiveColor,
-                      size: 18.0,
-                    ),
-                    Expanded(
-                      child: SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                            thumbColor: luminosityActiveColor,
-                            overlayColor: luminosityThumOverlayColor,
-                            thumbShape:
-                                RoundSliderThumbShape(enabledThumbRadius: 8.0),
-                            overlayShape:
-                                RoundSliderOverlayShape(overlayRadius: 25.0),
-                            activeTrackColor: luminosityActiveColor,
-                            inactiveTrackColor: luminosityInactiveColor,
-                            trackHeight: .2),
-                        child: Slider.adaptive(
-                          value: _brightness,
-                          onChanged: (double value) {
-                            setState(() {
-                              _brightness = value;
-                            });
-                            setBrightness(_brightness);
-                          },
-                          max: 1,
-                          min: 0.1,
+    return WillPopScope(
+      onWillPop: () {
+        if (_interstitialAd != null) {
+          print('Ad not empty');
+          _interstitialAd?.show();
+        } else {
+          print('Ad empty');
+
+          Navigator.pop(context);
+        }
+        return Future.value(true);
+      },
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: screenLight,
+          body: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Visibility(
+                  visible: luminosityState,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.brightness_high,
+                        color: luminosityActiveColor,
+                        size: 18.0,
+                      ),
+                      Expanded(
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                              thumbColor: luminosityActiveColor,
+                              overlayColor: luminosityThumOverlayColor,
+                              thumbShape: RoundSliderThumbShape(
+                                  enabledThumbRadius: 8.0),
+                              overlayShape:
+                                  RoundSliderOverlayShape(overlayRadius: 25.0),
+                              activeTrackColor: luminosityActiveColor,
+                              inactiveTrackColor: luminosityInactiveColor,
+                              trackHeight: .2),
+                          child: Slider.adaptive(
+                            value: _brightness,
+                            onChanged: (double value) {
+                              setState(() {
+                                _brightness = value;
+                              });
+                              setBrightness(_brightness);
+                            },
+                            max: 1,
+                            min: 0.1,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Visibility(
+                  visible: controlState,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ActionButton(
+                          onPressed: customLightProcess,
+                          btnBorderColor: kSplashScreenBg,
+                          btnFillColor: customLightColor),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ActionButton(
+                              onPressed: mainLightBtnProcess,
+                              btnBorderColor: btnLightBorderColor,
+                              btnFillColor: btnLightFillColor,
+                              icon: Icons.lightbulb,
+                              iconColor: mainLightIconColor,
+                            ),
+                            SizedBox(
+                              width: 16.0,
+                            ),
+                            ActionButton(
+                              onPressed: customLightBtnProcess,
+                              btnBorderColor: btnCustomLightBorderColor,
+                              btnFillColor: btnCustomLightFillColor,
+                              icon: Icons.settings,
+                              iconColor: customLightIconColor,
+                            ),
+                          ],
                         ),
                       ),
-                    )
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Visibility(
-                visible: controlState,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ActionButton(
-                        onPressed: customLightProcess,
-                        btnBorderColor: kSplashScreenBg,
-                        btnFillColor: customLightColor),
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ActionButton(
-                            onPressed: mainLightBtnProcess,
-                            btnBorderColor: btnLightBorderColor,
-                            btnFillColor: btnLightFillColor,
-                            icon: Icons.lightbulb,
-                            iconColor: mainLightIconColor,
-                          ),
-                          SizedBox(
-                            width: 16.0,
-                          ),
-                          ActionButton(
-                            onPressed: customLightBtnProcess,
-                            btnBorderColor: btnCustomLightBorderColor,
-                            btnFillColor: btnCustomLightFillColor,
-                            icon: Icons.settings,
-                            iconColor: customLightIconColor,
-                          ),
-                        ],
-                      ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      if (activeLight) {
+                        mainLightPowerHandle();
+                      } else {
+                        customLightPowerHandle();
+                      }
+                    },
+                    child: Image(
+                      width: 240.0,
+                      height: 240.0,
+                      image: powerImg,
                     ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    if (activeLight) {
-                      mainLightPowerHandle();
-                    } else {
-                      customLightPowerHandle();
-                    }
-                  },
-                  child: Image(
-                    width: 240.0,
-                    height: 240.0,
-                    image: powerImg,
                   ),
                 ),
-              ),
-              Image(
-                image: logoImg,
-              ),
-              if (_bannerAd != null)
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    width: _bannerAd!.size.width.toDouble(),
-                    height: _bannerAd!.size.height.toDouble(),
-                    child: AdWidget(ad: _bannerAd!),
-                  ),
+                Image(
+                  image: logoImg,
                 ),
-            ],
+                if (_bannerAd != null)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      width: _bannerAd!.size.width.toDouble(),
+                      height: _bannerAd!.size.height.toDouble(),
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
-    
   }
 
   @override
   void dispose() {
-     _bannerAd?.dispose();
-      _loadInterstitialAd();
+    print('On Dispose Load');
+    _bannerAd?.dispose();
 
-
-   
-
-    // TODO: implement dispose
     super.dispose();
   }
-
 
   Color checkSelectedColorSet(Color actualCustomLight, Color colorInRow) {
     if (actualCustomLight == colorInRow) {
@@ -587,7 +596,3 @@ class _EcolightAppState extends State<EcolightApp> {
     }
   }
 }
-
-
-
-
